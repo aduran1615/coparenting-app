@@ -4,17 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Co-Parenting Hub</title>
+
+  <!-- Custom App Icon & Web App Settings -->
+  <link rel="apple-touch-icon" href="https://via.placeholder.com/180/4A90E2/ffffff?text=CoParent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
   <style>
     :root {
-      --primary: #2c3e50;
-      --accent: #3498db;
-      --bg: #f4f6f8;
-      --card-bg: #ffffff;
+      --primary: #2C3E50;      /* Deep Slate Blue */
+      --accent: #4A90E2;       /* Friendly Blue */
+      --bg: #F4F7F6;           /* Soft Light Gray */
+      --card-bg: #FFFFFF;
       --text: #333333;
+      --danger: #E74C3C;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg);
@@ -25,7 +32,6 @@
       overflow: hidden;
     }
 
-    /* App Header */
     header {
       background-color: var(--primary);
       color: white;
@@ -36,7 +42,6 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
-    /* Main Content Container */
     main {
       flex: 1;
       padding: 16px;
@@ -46,7 +51,6 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* UI Cards */
     .card {
       background: var(--card-bg);
       border-radius: 12px;
@@ -61,12 +65,50 @@
       margin-bottom: 8px;
     }
 
-    .card p {
+    /* Form Styles */
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
       font-size: 14px;
-      color: #666;
     }
 
-    /* Bottom Navigation Bar */
+    .btn-action {
+      width: 100%;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-action:active { opacity: 0.8; }
+
+    /* Event List Styling */
+    .event-item {
+      border-left: 4px solid var(--accent);
+      padding: 8px 12px;
+      margin-top: 8px;
+      background: #f9f9f9;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      font-weight: bold;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
     nav {
       background: var(--card-bg);
       display: flex;
@@ -88,19 +130,6 @@
       color: var(--accent);
       border-top: 3px solid var(--accent);
     }
-
-    /* Action Button */
-    .btn-action {
-      width: 100%;
-      background-color: var(--accent);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: 600;
-      margin-top: 10px;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
@@ -111,39 +140,36 @@
     <!-- Schedule Tab -->
     <div id="schedule" class="tab-content active">
       <div class="card">
-        <h3>📅 Upcoming Schedule</h3>
-        <p><strong>Soccer Practice:</strong> Mon & Wed @ 4:00 PM</p>
-        <p><strong>Swimming Class:</strong> Saturdays @ 10:00 AM</p>
+        <h3>➕ Add Event</h3>
+        <input type="text" id="eventTitle" placeholder="Event Name (e.g., Soccer Practice)">
+        <input type="text" id="eventTime" placeholder="Date & Time (e.g., Mon @ 4 PM)">
+        <button class="btn-action" onclick="addEvent()">Save Event</button>
       </div>
+
       <div class="card">
-        <h3>🚗 Transition / Pick-up</h3>
-        <p><strong>Next Pick-up:</strong> Friday @ 5:00 PM</p>
+        <h3>📅 Upcoming Events</h3>
+        <div id="eventList"><p style="color: #888;">No events saved yet.</p></div>
       </div>
     </div>
 
     <!-- Info Tab -->
     <div id="info" class="tab-content">
       <div class="card">
-        <h3>📋 Essential Info</h3>
+        <h3>📋 Essential Contacts</h3>
         <p><strong>Pediatrician:</strong> Dr. Smith (555-0192)</p>
-        <p><strong>School Contact:</strong> Main Office (555-0144)</p>
-      </div>
-      <div class="card">
-        <h3>⚽ Activities & Gear</h3>
-        <p>Gymnastics clothes & Swim kit in backpack.</p>
+        <p><strong>School:</strong> Main Office (555-0144)</p>
       </div>
     </div>
 
     <!-- Settings Tab -->
     <div id="settings" class="tab-content">
       <div class="card">
-        <h3>App Options</h3>
-        <button class="btn-action" style="background-color: #e74c3c;" onclick="exitApp()">Exit Application</button>
+        <h3>Options</h3>
+        <button class="btn-action" style="background-color: var(--danger);" onclick="exitApp()">Exit App</button>
       </div>
     </div>
   </main>
 
-  <!-- Navigation Tabs -->
   <nav>
     <button class="nav-btn active" onclick="showTab('schedule', this)">Schedule</button>
     <button class="nav-btn" onclick="showTab('info', this)">Info</button>
@@ -151,19 +177,67 @@
   </nav>
 
   <script>
+    // Tab Switching
     function showTab(tabId, element) {
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-      
       document.getElementById(tabId).classList.add('active');
       element.classList.add('active');
+    }
+
+    // Local Storage: Load Events on Startup
+    document.addEventListener("DOMContentLoaded", loadEvents);
+
+    function addEvent() {
+      const title = document.getElementById("eventTitle").value;
+      const time = document.getElementById("eventTime").value;
+
+      if (!title || !time) {
+        alert("Please fill in both fields.");
+        return;
+      }
+
+      const events = JSON.parse(localStorage.getItem("coParentEvents") || "[]");
+      events.push({ id: Date.now(), title, time });
+      localStorage.setItem("coParentEvents", JSON.stringify(events));
+
+      document.getElementById("eventTitle").value = "";
+      document.getElementById("eventTime").value = "";
+      loadEvents();
+    }
+
+    function loadEvents() {
+      const events = JSON.parse(localStorage.getItem("coParentEvents") || "[]");
+      const listContainer = document.getElementById("eventList");
+
+      if (events.length === 0) {
+        listContainer.innerHTML = '<p style="color: #888; font-size: 14px;">No events saved yet.</p>';
+        return;
+      }
+
+      listContainer.innerHTML = events.map(e => `
+        <div class="event-item">
+          <div>
+            <strong>${e.title}</strong><br>
+            <small style="color: #666;">${e.time}</small>
+          </div>
+          <button class="delete-btn" onclick="deleteEvent(${e.id})">✕</button>
+        </div>
+      `).join("");
+    }
+
+    function deleteEvent(id) {
+      let events = JSON.parse(localStorage.getItem("coParentEvents") || "[]");
+      events = events.filter(e => e.id !== id);
+      localStorage.setItem("coParentEvents", JSON.stringify(events));
+      loadEvents();
     }
 
     function exitApp() {
       if (window.history.length > 1) {
         window.history.back();
       } else {
-        alert("To close, swipe up or press your phone's Home button.");
+        alert("To exit, swipe up or press your phone's Home button.");
       }
     }
   </script>
